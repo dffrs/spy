@@ -99,7 +99,7 @@ function interceptor<T extends object>(
  * notifying observers when changes occur. It also provides methods for adding observers and setting up
  * specific effects to be triggered when certain properties change.
  */
-export function ObservableMixin<TBase extends Constructor>(Base: TBase): ObservableMixin<TBase> & TBase {
+export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBase> & TBase {
   return class extends Base {
     private effects: Map<PropertyKey, ((...args: any[]) => void)[]> = new Map();
     private listeners: Map<PropertyKey, ["before" | "after", (...args: any[]) => void][]> = new Map();
