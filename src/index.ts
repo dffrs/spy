@@ -139,9 +139,9 @@ export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBa
       prop: V extends "all" ? V : ExtractType<TBase, V> extends (...args: any[]) => unknown ? never : V,
       effect: V extends "all"
         ? (
-            data: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>,
-            oldData: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>
-          ) => void
+          data: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>,
+          oldData: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>
+        ) => void
         : (data: ExcludeFunction<ExtractType<TBase, V>>, oldData: ExcludeFunction<ExtractType<TBase, V>>) => void
     ) {
       if (!this.effects.has(prop)) {
