@@ -121,4 +121,63 @@ describe("Spy tests", () => {
     expect(numberOfCalls).toBe(2)
     expect(registerCallParams).toStrictEqual([99, 10, "This has been changed to a new string value", "Name"])
   })
+
+  it("call beforeCalling on instance's method", () => {
+
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    let hasCallbackBeenCalled = false;
+
+    const callBack = () => {
+      hasCallbackBeenCalled = true;
+    }
+
+    const spyMethod = () => {
+      numberOfCalls++;
+      expect(hasCallbackBeenCalled).toBe(false)
+    }
+
+    spy.beforeCalling("publicMethod1", spyMethod)
+
+    spy.publicMethod1(callBack)
+
+    expect(numberOfCalls).toBe(1)
+    expect(hasCallbackBeenCalled).toBe(true)
+  })
+
+  it("call afterCalling on instance's method", () => {
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    let hasCallbackBeenCalled = false;
+
+    const callBack = () => {
+      hasCallbackBeenCalled = true;
+    }
+
+    const spyMethod = () => {
+      numberOfCalls++;
+      expect(hasCallbackBeenCalled).toBe(true)
+    }
+
+    spy.afterCalling("publicMethod1", spyMethod)
+
+    spy.publicMethod1(callBack)
+
+    expect(numberOfCalls).toBe(1)
+    expect(hasCallbackBeenCalled).toBe(true)
+  })
 });
