@@ -13,6 +13,7 @@ class DummyClass {
     cb();
   }
 }
+
 // Create a spy instance
 const SpyOnDummy = Spy(DummyClass);
 
@@ -52,8 +53,7 @@ describe("Spy tests", () => {
     expect(newValueRecordedInsideSpyMethod).toBe(newValueForAttr1);
   });
 
-
-  it("observe how changing first attr does NOT change the others", () => {
+  it("observe how changing one attr does NOT change the others", () => {
     // create initial values
     const initialAttr1 = 10;
     const initialAttr2 = "Name";
@@ -89,5 +89,36 @@ describe("Spy tests", () => {
     expect(newValueRecordedInsideSpyMethod).toBe(newValueForAttr2);
 
     expect(spy.attr1).toBe(10) // This should still have it's original value 
+  })
+
+  it("observe all attributes from class", () => {
+    // create initial values
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    // store old value new value pares
+    let registerCallParams: (string | number)[] = [];
+
+    // create  a method to spy on observe calls
+    const spyMethod = (...args: (string | number)[]) => {
+      numberOfCalls++;
+      registerCallParams.push(...args)
+    }
+
+    // setup observe call
+    spy.observe("all", spyMethod)
+
+    // change values
+    spy.attr1 = 99
+    spy.attr2 = "This has been changed to a new string value"
+
+    expect(numberOfCalls).toBe(2)
+    expect(registerCallParams).toStrictEqual([99, 10, "This has been changed to a new string value", "Name"])
   })
 });
