@@ -180,4 +180,44 @@ describe("Spy tests", () => {
     expect(numberOfCalls).toBe(1)
     expect(hasCallbackBeenCalled).toBe(true)
   })
+
+  it("call afterCalling and beforeCalling on an instance's method", () => {
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    let hasCallbackBeenCalledForBeforeCalling = false;
+    let hasCallbackBeenCalledForAfterCalling = false;
+
+    const callback = () => {
+      hasCallbackBeenCalledForBeforeCalling = true;
+      hasCallbackBeenCalledForAfterCalling = true
+    }
+
+    const spyMethodForBeforeCalling = () => {
+      numberOfCalls++;
+      expect(hasCallbackBeenCalledForAfterCalling).toBe(false)
+      expect(hasCallbackBeenCalledForBeforeCalling).toBe(false)
+    }
+
+    const spyMethodForAfterCalling = () => {
+      numberOfCalls++;
+      expect(hasCallbackBeenCalledForAfterCalling).toBe(true)
+      expect(hasCallbackBeenCalledForBeforeCalling).toBe(true)
+    }
+
+    spy.beforeCalling("publicMethod1", spyMethodForBeforeCalling)
+    spy.afterCalling("publicMethod1", spyMethodForAfterCalling)
+
+    spy.publicMethod1(callback)
+
+    expect(numberOfCalls).toBe(2)
+    expect(hasCallbackBeenCalledForBeforeCalling).toBe(true)
+    expect(hasCallbackBeenCalledForAfterCalling).toBe(true)
+  })
 });
