@@ -68,7 +68,7 @@ describe("Spy tests", () => {
 
     // create a variable to store value that comes from spyMethod
     let oldValueRecordedInsideSpyMethod: string = ""; // initial value - does not matter
-    let newValueRecordedInsideSpyMethod: string = "";// initial value - does not matter
+    let newValueRecordedInsideSpyMethod: string = ""; // initial value - does not matter
 
     // create a spy method to increment numberOfCalls
     const spyMethod = (newValue: string, oldValue: string) => {
@@ -88,8 +88,8 @@ describe("Spy tests", () => {
     expect(oldValueRecordedInsideSpyMethod).toBe(initialAttr2);
     expect(newValueRecordedInsideSpyMethod).toBe(newValueForAttr2);
 
-    expect(spy.attr1).toBe(10) // This should still have it's original value 
-  })
+    expect(spy.attr1).toBe(10); // This should still have it's original value
+  });
 
   it("observe all attributes from class", () => {
     // create initial values
@@ -108,19 +108,24 @@ describe("Spy tests", () => {
     // create  a method to spy on observe calls
     const spyMethod = (...args: (string | number)[]) => {
       numberOfCalls++;
-      registerCallParams.push(...args)
-    }
+      registerCallParams.push(...args);
+    };
 
     // setup observe call
-    spy.observe("all", spyMethod)
+    spy.observe("all", spyMethod);
 
     // change values
-    spy.attr1 = 99
-    spy.attr2 = "This has been changed to a new string value"
+    spy.attr1 = 99;
+    spy.attr2 = "This has been changed to a new string value";
 
-    expect(numberOfCalls).toBe(2)
-    expect(registerCallParams).toStrictEqual([99, 10, "This has been changed to a new string value", "Name"])
-  })
+    expect(numberOfCalls).toBe(2);
+    expect(registerCallParams).toStrictEqual([
+      99,
+      10,
+      "This has been changed to a new string value",
+      "Name",
+    ]);
+  });
 
   it("observe that changing attr via function still registers", () => {
     const initialAttr1 = 10;
@@ -134,20 +139,19 @@ describe("Spy tests", () => {
 
     const spyMethod = () => {
       numberOfCalls++;
-    }
+    };
 
     spy.observe("attr1", spyMethod);
 
     const methodThatChangesAttr = (_spy: typeof spy) => {
       _spy.attr1 = 99;
-    }
+    };
 
     methodThatChangesAttr(spy);
-    expect(numberOfCalls).toBe(1)
-  })
+    expect(numberOfCalls).toBe(1);
+  });
 
   it("call beforeCalling on instance's method", () => {
-
     const initialAttr1 = 10;
     const initialAttr2 = "Name";
 
@@ -161,20 +165,20 @@ describe("Spy tests", () => {
 
     const callBack = () => {
       hasCallbackBeenCalled = true;
-    }
+    };
 
     const spyMethod = () => {
       numberOfCalls++;
-      expect(hasCallbackBeenCalled).toBe(false)
-    }
+      expect(hasCallbackBeenCalled).toBe(false);
+    };
 
-    spy.beforeCalling("publicMethod1", spyMethod)
+    spy.beforeCalling("publicMethod1", spyMethod);
 
-    spy.publicMethod1(callBack)
+    spy.publicMethod1(callBack);
 
-    expect(numberOfCalls).toBe(1)
-    expect(hasCallbackBeenCalled).toBe(true)
-  })
+    expect(numberOfCalls).toBe(1);
+    expect(hasCallbackBeenCalled).toBe(true);
+  });
 
   it("call afterCalling on instance's method", () => {
     const initialAttr1 = 10;
@@ -190,20 +194,20 @@ describe("Spy tests", () => {
 
     const callBack = () => {
       hasCallbackBeenCalled = true;
-    }
+    };
 
     const spyMethod = () => {
       numberOfCalls++;
-      expect(hasCallbackBeenCalled).toBe(true)
-    }
+      expect(hasCallbackBeenCalled).toBe(true);
+    };
 
-    spy.afterCalling("publicMethod1", spyMethod)
+    spy.afterCalling("publicMethod1", spyMethod);
 
-    spy.publicMethod1(callBack)
+    spy.publicMethod1(callBack);
 
-    expect(numberOfCalls).toBe(1)
-    expect(hasCallbackBeenCalled).toBe(true)
-  })
+    expect(numberOfCalls).toBe(1);
+    expect(hasCallbackBeenCalled).toBe(true);
+  });
 
   it("call afterCalling and beforeCalling on an instance's method", () => {
     const initialAttr1 = 10;
@@ -220,28 +224,28 @@ describe("Spy tests", () => {
 
     const callback = () => {
       hasCallbackBeenCalledForBeforeCalling = true;
-      hasCallbackBeenCalledForAfterCalling = true
-    }
+      hasCallbackBeenCalledForAfterCalling = true;
+    };
 
     const spyMethodForBeforeCalling = () => {
       numberOfCalls++;
-      expect(hasCallbackBeenCalledForAfterCalling).toBe(false)
-      expect(hasCallbackBeenCalledForBeforeCalling).toBe(false)
-    }
+      expect(hasCallbackBeenCalledForAfterCalling).toBe(false);
+      expect(hasCallbackBeenCalledForBeforeCalling).toBe(false);
+    };
 
     const spyMethodForAfterCalling = () => {
       numberOfCalls++;
-      expect(hasCallbackBeenCalledForAfterCalling).toBe(true)
-      expect(hasCallbackBeenCalledForBeforeCalling).toBe(true)
-    }
+      expect(hasCallbackBeenCalledForAfterCalling).toBe(true);
+      expect(hasCallbackBeenCalledForBeforeCalling).toBe(true);
+    };
 
-    spy.beforeCalling("publicMethod1", spyMethodForBeforeCalling)
-    spy.afterCalling("publicMethod1", spyMethodForAfterCalling)
+    spy.beforeCalling("publicMethod1", spyMethodForBeforeCalling);
+    spy.afterCalling("publicMethod1", spyMethodForAfterCalling);
 
-    spy.publicMethod1(callback)
+    spy.publicMethod1(callback);
 
-    expect(numberOfCalls).toBe(2)
-    expect(hasCallbackBeenCalledForBeforeCalling).toBe(true)
-    expect(hasCallbackBeenCalledForAfterCalling).toBe(true)
-  })
+    expect(numberOfCalls).toBe(2);
+    expect(hasCallbackBeenCalledForBeforeCalling).toBe(true);
+    expect(hasCallbackBeenCalledForAfterCalling).toBe(true);
+  });
 });
