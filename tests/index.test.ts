@@ -122,6 +122,30 @@ describe("Spy tests", () => {
     expect(registerCallParams).toStrictEqual([99, 10, "This has been changed to a new string value", "Name"])
   })
 
+  it("observe that changing attr via function still registers", () => {
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    const spyMethod = () => {
+      numberOfCalls++;
+    }
+
+    spy.observe("attr1", spyMethod);
+
+    const methodThatChangesAttr = (_spy: typeof spy) => {
+      _spy.attr1 = 99;
+    }
+
+    methodThatChangesAttr(spy);
+    expect(numberOfCalls).toBe(1)
+  })
+
   it("call beforeCalling on instance's method", () => {
 
     const initialAttr1 = 10;
