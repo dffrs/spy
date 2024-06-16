@@ -1,6 +1,6 @@
 # SPY
 
-SPY is a typescript class that let's observe changes done to another's class attributes. It is based on observable/observed pattern.
+SPY is a typescript class that let's observe changes done to another's class attributes. It is based on Observable pattern.
 
 ## Installation
 
@@ -27,7 +27,9 @@ class DummyClass {
   // Other class methods...
 }
 
-// Create a spy instance
+// Create a spy instance, by wrapping the target's instance with Spy.
+// This new instance will have all DummyClass's attributes, as well as methods.
+// There'll be new methods added to listen to attributes changes/modifications.
 const SpyOnDummy = Spy(DummyClass);
 
 // Then, someplace else...
@@ -36,4 +38,12 @@ const spy = SpyOnDummy(10, "Test");
 spy.observe("attr1", () => {
   console.log("I will be called whenever attr1 is modified");
 });
+```
+
+## API
+
+observe
+
+```typescript
+spy.observe("attribute", effect);
 ```
