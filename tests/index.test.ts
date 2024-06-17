@@ -277,4 +277,38 @@ describe("Spy tests", () => {
     expect(spy.attr1).toBe(69);
     expect(numberOfCalls).toBe(1);
   });
+
+  it("remove specific effect on observed attribute", () => {
+    const initialAttr1 = 10;
+    const initialAttr2 = "Name";
+
+    // Create an instance of spy  dummyClass
+    const spy = new SpyOnDummy(initialAttr1, initialAttr2);
+
+    // store number of calls done
+    let numberOfCalls: number = 0;
+
+    const spyMethod = () => {
+      numberOfCalls++;
+    };
+
+    const spyMethod_2 = () => {
+      throw Error("This method should have been removed");
+    };
+
+    spy.observe("attr1", spyMethod);
+
+    spy.attr1 = 99;
+
+    expect(spy.attr1).toBe(99);
+    expect(numberOfCalls).toBe(1);
+
+    spy.observe("attr1", spyMethod_2);
+    spy.remove("attr1", spyMethod_2);
+
+    spy.attr1 = 69; // nice
+
+    expect(spy.attr1).toBe(69);
+    expect(numberOfCalls).toBe(2);
+  });
 });

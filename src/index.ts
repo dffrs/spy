@@ -34,6 +34,18 @@ type ObservableMixin<T> = Constructor<{
       ? never
       : V
   ): boolean;
+  remove<V extends keyof T[keyof T] | "all">(
+    prop: V extends "all"
+      ? V
+      : ExtractType<T, V> extends (...args: any[]) => unknown
+      ? never
+      : V,
+    effect: (...args: any[]) => unknown,
+    comparator?: (
+      registeredMethod: (...args: any[]) => unknown,
+      toRemoveMethod: (...args: any[]) => unknown
+    ) => boolean
+  ): boolean;
 }>;
 
 /**
@@ -239,9 +251,39 @@ export function Spy<TBase extends Constructor>(
     ) {
       if (!this.effects.has(prop)) return false;
 
-      const effect = this.effects.get(prop)?.pop();
+      return !!this.effects.get(prop)?.pop();
+    }
 
-      return !!effect;
+    remove<V extends keyof TBase[keyof TBase] | "all">(
+      prop: V extends "all"
+        ? V
+        : ExtractType<TBase, V> extends (...args: any[]) => unknown
+        ? never
+        : V,
+      effect: (...args: any[]) => unknown,
+      comparator = (
+        registeredMethod: (...args: any[]) => unknown,
+        toRemoveMethod: (...args: any[]) => unknown
+      ) => registeredMethod === toRemoveMethod // has the same reference
+    ) {
+      let hasFoundEffect = false;
+      if (!this.effects.has(prop)) return hasFoundEffect;
+
+      const effectsList = this.effects.get(prop);
+
+      if (!effectsList) return hasFoundEffect;
+
+      this.effects.set(
+        prop,
+        effectsList.filter((_effect) => {
+          const isEqual = comparator(_effect, effect);
+          if (isEqual) hasFoundEffect = true;
+
+          return !isEqual;
+        })
+      );
+
+      return hasFoundEffect;
     }
   };
 }
