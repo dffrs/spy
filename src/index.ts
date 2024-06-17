@@ -1,17 +1,39 @@
 type ExtractType<T, K> = K extends keyof T[keyof T] ? T[keyof T][K] : never;
 type ExcludeFunction<T> = Exclude<T, (...args: any[]) => unknown>;
-type PickFunctionNames<T> = { [P in keyof T]: T[P] extends (...args: any[]) => unknown ? P : never }[keyof T];
+type PickFunctionNames<T> = {
+  [P in keyof T]: T[P] extends (...args: any[]) => unknown ? P : never;
+}[keyof T];
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 type ObservableMixin<T> = Constructor<{
   observe<V extends keyof T[keyof T] | "all">(
-    prop: V extends "all" ? V : ExtractType<T, V> extends (...args: any[]) => unknown ? never : V,
+    prop: V extends "all"
+      ? V
+      : ExtractType<T, V> extends (...args: any[]) => unknown
+      ? never
+      : V,
     effect: V extends "all"
-      ? (data: ExcludeFunction<T[keyof T][keyof T[keyof T]]>, oldData: ExcludeFunction<T[keyof T][keyof T[keyof T]]>) => void
-      : (data: ExcludeFunction<ExtractType<T, V>>, oldData: ExcludeFunction<ExtractType<T, V>>) => void
+      ? (
+          data: ExcludeFunction<T[keyof T][keyof T[keyof T]]>,
+          oldData: ExcludeFunction<T[keyof T][keyof T[keyof T]]>
+        ) => void
+      : (
+          data: ExcludeFunction<ExtractType<T, V>>,
+          oldData: ExcludeFunction<ExtractType<T, V>>
+        ) => void
   ): void;
-  beforeCalling(method: PickFunctionNames<T[keyof T]>, effect: () => void): void;
+  beforeCalling(
+    method: PickFunctionNames<T[keyof T]>,
+    effect: () => void
+  ): void;
   afterCalling(method: PickFunctionNames<T[keyof T]>, effect: () => void): void;
+  removeLast<V extends keyof T[keyof T] | "all">(
+    prop: V extends "all"
+      ? V
+      : ExtractType<T, V> extends (...args: any[]) => unknown
+      ? never
+      : V
+  ): boolean;
 }>;
 
 /**
@@ -37,7 +59,10 @@ type ObservableMixin<T> = Constructor<{
 function interceptor<T extends object>(
   instance: T,
   observers: Map<PropertyKey, ((...args: any[]) => void)[]>,
-  listeners: Map<PropertyKey, ["before" | "after", (...args: any[]) => void][]> = new Map()
+  listeners: Map<
+    PropertyKey,
+    ["before" | "after", (...args: any[]) => void][]
+  > = new Map()
 ) {
   return new Proxy<T>(instance, {
     set(obj, property, value) {
@@ -45,10 +70,12 @@ function interceptor<T extends object>(
       obj[property as keyof typeof obj] = value;
 
       // update on specific prop
-      if (observers.has(property)) observers.get(property)?.forEach((effect) => effect(value, oldValue));
+      if (observers.has(property))
+        observers.get(property)?.forEach((effect) => effect(value, oldValue));
 
       // update on "all"
-      if (observers.has("all")) observers.get("all")?.forEach((effect) => effect(value, oldValue));
+      if (observers.has("all"))
+        observers.get("all")?.forEach((effect) => effect(value, oldValue));
 
       return true;
     },
@@ -59,7 +86,10 @@ function interceptor<T extends object>(
       const isFuncSpiedOn = listeners.has(propKey);
 
       // Calling functions
-      if (typeof target[propKey as keyof typeof target] === "function" && isFuncSpiedOn) {
+      if (
+        typeof target[propKey as keyof typeof target] === "function" &&
+        isFuncSpiedOn
+      ) {
         return new Proxy((target as any)[propKey], {
           apply(...args) {
             const beforeEffects: Array<Function> = [];
@@ -67,7 +97,11 @@ function interceptor<T extends object>(
 
             listeners
               .get(propKey)
-              ?.forEach(([when, effect]) => (when === "after" ? afterEffects.push(effect) : beforeEffects.push(effect)));
+              ?.forEach(([when, effect]) =>
+                when === "after"
+                  ? afterEffects.push(effect)
+                  : beforeEffects.push(effect)
+              );
 
             beforeEffects.forEach((eff) => eff());
 
@@ -99,10 +133,15 @@ function interceptor<T extends object>(
  * notifying observers when changes occur. It also provides methods for adding observers and setting up
  * specific effects to be triggered when certain properties change.
  */
-export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBase> & TBase {
+export function Spy<TBase extends Constructor>(
+  Base: TBase
+): ObservableMixin<TBase> & TBase {
   return class extends Base {
     private effects: Map<PropertyKey, ((...args: any[]) => void)[]> = new Map();
-    private listeners: Map<PropertyKey, ["before" | "after", (...args: any[]) => void][]> = new Map();
+    private listeners: Map<
+      PropertyKey,
+      ["before" | "after", (...args: any[]) => void][]
+    > = new Map();
 
     constructor(...rest: any[]) {
       super(...rest);
@@ -123,7 +162,11 @@ export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBa
      * @param effect - The `effect` parameter is a function that will be executed before or after calling the
      * specified method.
      */
-    private listenTo(effectName: PickFunctionNames<TBase[keyof TBase]>, when: "before" | "after", effect: () => void) {
+    private listenTo(
+      effectName: PickFunctionNames<TBase[keyof TBase]>,
+      when: "before" | "after",
+      effect: () => void
+    ) {
       if (!this.listeners.has(effectName)) this.listeners.set(effectName, []);
 
       this.listeners.get(effectName)?.push([when, effect]);
@@ -136,13 +179,22 @@ export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBa
      * @param effect - The `effect` parameter is a function that will be executed after `prop` has been modified.
      */
     observe<V extends keyof TBase[keyof TBase] | "all">(
-      prop: V extends "all" ? V : ExtractType<TBase, V> extends (...args: any[]) => unknown ? never : V,
+      prop: V extends "all"
+        ? V
+        : ExtractType<TBase, V> extends (...args: any[]) => unknown
+        ? never
+        : V,
       effect: V extends "all"
         ? (
-          data: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>,
-          oldData: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>
-        ) => void
-        : (data: ExcludeFunction<ExtractType<TBase, V>>, oldData: ExcludeFunction<ExtractType<TBase, V>>) => void
+            data: ExcludeFunction<TBase[keyof TBase][keyof TBase[keyof TBase]]>,
+            oldData: ExcludeFunction<
+              TBase[keyof TBase][keyof TBase[keyof TBase]]
+            >
+          ) => void
+        : (
+            data: ExcludeFunction<ExtractType<TBase, V>>,
+            oldData: ExcludeFunction<ExtractType<TBase, V>>
+          ) => void
     ) {
       if (!this.effects.has(prop)) {
         this.effects.set(prop, []);
@@ -157,7 +209,10 @@ export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBa
      * @param effect - The `effect` parameter is a function that will be executed before calling the
      * specified method.
      */
-    beforeCalling(method: PickFunctionNames<TBase[keyof TBase]>, effect: () => void) {
+    beforeCalling(
+      method: PickFunctionNames<TBase[keyof TBase]>,
+      effect: () => void
+    ) {
       this.listenTo(method, "before", effect);
     }
 
@@ -168,8 +223,25 @@ export function Spy<TBase extends Constructor>(Base: TBase): ObservableMixin<TBa
      * @param effect - The `effect` parameter is a function that will be executed after the specified
      * method is called.
      */
-    afterCalling(method: PickFunctionNames<TBase[keyof TBase]>, effect: () => void) {
+    afterCalling(
+      method: PickFunctionNames<TBase[keyof TBase]>,
+      effect: () => void
+    ) {
       this.listenTo(method, "after", effect);
+    }
+
+    removeLast<V extends keyof TBase[keyof TBase] | "all">(
+      prop: V extends "all"
+        ? V
+        : ExtractType<TBase, V> extends (...args: any[]) => unknown
+        ? never
+        : V
+    ) {
+      if (!this.effects.has(prop)) return false;
+
+      const effect = this.effects.get(prop)?.pop();
+
+      return !!effect;
     }
   };
 }
