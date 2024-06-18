@@ -242,18 +242,30 @@ export function Spy<TBase extends Constructor>(
       this.listenTo(method, "after", effect);
     }
 
+    /**
+     * Function to remove last appended effect on a specific attribute.
+     * @param {T} prop - The attribute to remove effect  from.
+     * @return {boolean} - boolean representing whether the effect has been removed successfully.
+     */
     removeLast<V extends keyof TBase[keyof TBase] | "all">(
       prop: V extends "all"
         ? V
         : ExtractType<TBase, V> extends (...args: any[]) => unknown
         ? never
         : V
-    ) {
+    ): boolean {
       if (!this.effects.has(prop)) return false;
 
       return !!this.effects.get(prop)?.pop();
     }
 
+    /**
+     * Function to remove an appended effect on a specific attribute.
+     * @param {T} prop - The attribute to remove effect from.
+     * @param {(...args: anyp[]) => unknown} effect - The effect to remove.
+     * @param {(cb: (...args:any[]) => unknown, cb2: (...args:any[]) => unknown) => boolean} comparator - Function responsible to compare effects. Compares by reference, by default.
+     * @return {boolean} - boolean representing whether the effect has been removed successfully.
+     */
     remove<V extends keyof TBase[keyof TBase] | "all">(
       prop: V extends "all"
         ? V
@@ -261,11 +273,14 @@ export function Spy<TBase extends Constructor>(
         ? never
         : V,
       effect: (...args: any[]) => unknown,
-      comparator = (
+      comparator: (
+        registeredMethod: (...args: any[]) => unknown,
+        toRemoveMethod: (...args: any[]) => unknown
+      ) => boolean = (
         registeredMethod: (...args: any[]) => unknown,
         toRemoveMethod: (...args: any[]) => unknown
       ) => registeredMethod === toRemoveMethod // has the same reference
-    ) {
+    ): boolean {
       let hasFoundEffect = false;
       if (!this.effects.has(prop)) return hasFoundEffect;
 
