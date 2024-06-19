@@ -22,22 +22,23 @@ This library provides a TypeScript mixin that adds observable behavior to a clas
 You can install the library using npm:
 
 ```sh
-TODO
+npm install spy
 ```
 
 ## Usage
 
 ### Creating an Observable Class.
+
 To create an observable class, use the Spy mixin function:
 
 ```typescript
-import { Spy } from 'spy';
+import { Spy } from "spy";
 
 class MyClass {
-  myProperty: string = 'initial value';
+  myProperty: string = "initial value";
 
   myMethod() {
-    console.log('myMethod called');
+    console.log("myMethod called");
   }
 }
 
@@ -46,50 +47,53 @@ const instance = new ObservableMyClass();
 ```
 
 ### Observing Property Changes
+
 You can observe changes to specific properties or all properties:
 
 ```typescript
-instance.observe('myProperty', (newValue, oldValue) => {
+instance.observe("myProperty", (newValue, oldValue) => {
   console.log(`myProperty changed from ${oldValue} to ${newValue}`);
 });
 
-instance.observe('all', (newValue, oldValue) => {
+instance.observe("all", (newValue, oldValue) => {
   console.log(`A property changed from ${oldValue} to ${newValue}`);
 });
 ```
 
 ### Listening to Method Calls
+
 You can add effects to be executed before or after specific method calls:
 
 ```typescript
-
-instance.beforeCalling('myMethod', () => {
-  console.log('Before myMethod');
+instance.beforeCalling("myMethod", () => {
+  console.log("Before myMethod");
 });
 
-instance.afterCalling('myMethod', () => {
-  console.log('After myMethod');
+instance.afterCalling("myMethod", () => {
+  console.log("After myMethod");
 });
 ```
 
 ### Removing Observers and Listeners
+
 You can remove the last added observer for a specific property or all properties:
 
 ```typescript
-instance.removeLast('myProperty');
-instance.removeLast('all');
+instance.removeLast("myProperty");
+instance.removeLast("all");
 ```
 
 You can also remove a specific observer or listener:
-```typescript
-instance.remove('myProperty', observerFunction);
-instance.remove('all', observerFunction);
-```
 
+```typescript
+instance.remove("myProperty", observerFunction);
+instance.remove("all", observerFunction);
+```
 
 ## API Reference
 
 ### observe
+
 The observe method adds an observer for a specific property or all properties.
 
 ```typescript
@@ -102,6 +106,7 @@ observe<V extends keyof T | "all">(
 ```
 
 ### beforeCalling
+
 The beforeCalling method adds an effect to be executed before a specific method is called.
 
 ```typescript
@@ -112,6 +117,7 @@ beforeCalling(
 ```
 
 ### afterCalling
+
 The afterCalling method adds an effect to be executed after a specific method is called.
 
 ```typescript
@@ -122,6 +128,7 @@ afterCalling(
 ```
 
 ### removeLast
+
 The removeLast method removes the last added observer for a specific property or all properties.
 
 ```typescript
@@ -131,6 +138,7 @@ removeLast<V extends keyof T | "all">(
 ```
 
 ### remove
+
 The remove method removes a specific observer for a property or all properties.
 
 ```typescript
